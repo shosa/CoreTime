@@ -1,0 +1,47 @@
+{
+  "name": "@coretime/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CoreTime Frontend",
+  "scripts": {
+    "dev": "next dev -p 3011",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@hookform/resolvers": "3.3.0",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/x-data-grid": "^8.26.0",
+    "ag-grid-community": "^35.1.0",
+    "ag-grid-react": "^35.1.0",
+    "autoprefixer": "^10.4.17",
+    "axios": "^1.6.0",
+    "date-fns": "^3.0.0",
+    "exceljs": "^4.4.0",
+    "framer-motion": "^11.0.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
+    "next": "^14.2.0",
+    "notistack": "^3.0.2",
+    "postcss": "^8.4.35",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-hook-form": "^7.51.0",
+    "tailwindcss": "^3.4.17",
+    "xlsx": "^0.18.5",
+    "yup": "^1.4.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.2.0",
+    "typescript": "^5.0.0"
+  }
+}

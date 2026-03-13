@@ -1,0 +1,25 @@
+{
+  "name": "coretime",
+  "version": "1.0.0",
+  "description": "CoreTime - Sistema gestione presenze e paghe",
+  "private": true,
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=@coretime/backend",
+    "dev:frontend": "npm run dev --workspace=@coretime/frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build:backend": "npm run build --workspace=@coretime/backend",
+    "build:frontend": "npm run build --workspace=@coretime/frontend",
+    "migrate": "npm run migrate --workspace=@coretime/backend",
+    "seed": "npm run seed --workspace=@coretime/backend",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

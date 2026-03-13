@@ -1,0 +1,78 @@
+# CoreTime - Gestione Presenze e Paghe
+#
+# PREREQUISITO: CoreServices deve essere avviato prima di CoreTime:
+#   cd ../CoreServices && docker-compose -f docker-compose.services.yml up -d
+#
+# Avvio:   docker-compose up -d
+# Stop:    docker-compose down
+# Logs:    docker-compose logs -f
+# Rebuild: docker-compose up -d --build
+
+version: '3.8'
+
+services:
+  # Backend API (NestJS)
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: coretime-backend
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      com.coresuite.app: "CoreTime"
+      com.coresuite.tier: "backend"
+      com.coresuite.technology: "NestJS"
+      com.coresuite.port: "3010"
+    environment:
+      # Database - usa il MySQL condiviso da CoreServices
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@core-mysql:3306/${MYSQL_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      APP_PORT: ${APP_PORT}
+      NODE_ENV: production
+      TZ: ${TZ:-Europe/Rome}
+    ports:
+      - "3010:3010"
+    networks:
+      - core-network
+    command: sh -c "npx prisma migrate deploy --schema=./prisma/schema.prisma && node dist/main"
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: coretime-frontend
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      com.coresuite.app: "CoreTime"
+      com.coresuite.tier: "frontend"
+      com.coresuite.technology: "Next.js"
+      com.coresuite.port: "3011"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NODE_ENV: production
+    ports:
+      - "3011:3000"
+    depends_on:
+      - backend
+    networks:
+      - core-network
+
+# Usa la network esterna creata da CoreServices
+networks:
+  core-network:
+    external: true
+    name: core-network

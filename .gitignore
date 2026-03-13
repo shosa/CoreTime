@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+apps/backend/dist/
+apps/frontend/.next/
+apps/frontend/out/
+
+# Environment files
+.env
+apps/backend/.env
+apps/frontend/.env*
+
+# Database
+*.db
+*.db-journal
+data/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+tmp_*.js
+dist/
+
+# TypeScript build info
+*.tsbuildinfo
