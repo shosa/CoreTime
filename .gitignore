@@ -15,6 +15,7 @@ apps/frontend/.env*
 *.db
 *.db-journal
 data/
+db/
 
 # Logs
 *.log

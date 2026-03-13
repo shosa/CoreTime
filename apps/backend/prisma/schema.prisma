@@ -3,45 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  admin
-  hr
-  supervisor
-}
-
-enum SheetStatus {
-  draft
-  submitted
-  locked
-}
-
-enum AuditAction {
-  create
-  update
-  delete
-  disable
-  enable
-}
-
-enum AuditEntity {
-  employee
-  department
-  sheet
-  entry
-  user
-}
-
 model User {
-  id        String   @id @default(uuid()) @db.VarChar(36)
-  email     String   @unique @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  firstName String   @map("first_name") @db.VarChar(255)
-  lastName  String   @map("last_name") @db.VarChar(255)
-  role      UserRole @default(supervisor)
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  role      String   @default("supervisor")
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -54,9 +26,9 @@ model User {
 }
 
 model Department {
-  id        String   @id @default(uuid()) @db.VarChar(36)
-  code      String   @unique @db.VarChar(50)
-  name      String   @db.VarChar(255)
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -68,11 +40,11 @@ model Department {
 }
 
 model Employee {
-  id         String  @id @default(uuid()) @db.VarChar(36)
-  code       String  @unique @db.VarChar(50)
-  firstName  String  @map("first_name") @db.VarChar(255)
-  lastName   String  @map("last_name") @db.VarChar(255)
-  hourlyRate Decimal @map("hourly_rate") @db.Decimal(10, 2)
+  id         String   @id @default(uuid())
+  code       String   @unique
+  firstName  String   @map("first_name")
+  lastName   String   @map("last_name")
+  hourlyRate Decimal  @map("hourly_rate")
   isActive   Boolean  @default(true) @map("is_active")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
@@ -85,11 +57,11 @@ model Employee {
 }
 
 model EmployeeDepartment {
-  id           String    @id @default(uuid()) @db.VarChar(36)
-  employeeId   String    @map("employee_id") @db.VarChar(36)
-  departmentId String    @map("department_id") @db.VarChar(36)
-  assignedFrom DateTime  @map("assigned_from") @db.Date
-  assignedTo   DateTime? @map("assigned_to") @db.Date
+  id           String    @id @default(uuid())
+  employeeId   String    @map("employee_id")
+  departmentId String    @map("department_id")
+  assignedFrom DateTime  @map("assigned_from")
+  assignedTo   DateTime? @map("assigned_to")
   createdAt    DateTime  @default(now()) @map("created_at")
 
   employee   Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
@@ -102,22 +74,22 @@ model EmployeeDepartment {
 }
 
 model AttendanceSheet {
-  id            String      @id @default(uuid()) @db.VarChar(36)
-  departmentId  String      @map("department_id") @db.VarChar(36)
+  id            String    @id @default(uuid())
+  departmentId  String    @map("department_id")
   year          Int
   month         Int
-  status        SheetStatus @default(draft)
-  notes         String?     @db.Text
-  createdById   String      @map("created_by_id") @db.VarChar(36)
-  submittedById String?     @map("submitted_by_id") @db.VarChar(36)
-  submittedAt   DateTime?   @map("submitted_at")
-  lockedAt      DateTime?   @map("locked_at")
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  status        String    @default("draft")
+  notes         String?
+  createdById   String    @map("created_by_id")
+  submittedById String?   @map("submitted_by_id")
+  submittedAt   DateTime? @map("submitted_at")
+  lockedAt      DateTime? @map("locked_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  department    Department         @relation(fields: [departmentId], references: [id], onDelete: Restrict)
-  createdBy     User               @relation("SheetCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  submittedBy   User?              @relation("SheetSubmittedBy", fields: [submittedById], references: [id], onDelete: SetNull)
+  department    Department          @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  createdBy     User                @relation("SheetCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  submittedBy   User?               @relation("SheetSubmittedBy", fields: [submittedById], references: [id], onDelete: SetNull)
   entries       AttendanceEntry[]
   employeeRates SheetEmployeeRate[]
 
@@ -128,10 +100,10 @@ model AttendanceSheet {
 }
 
 model SheetEmployeeRate {
-  id         String  @id @default(uuid()) @db.VarChar(36)
-  sheetId    String  @map("sheet_id") @db.VarChar(36)
-  employeeId String  @map("employee_id") @db.VarChar(36)
-  realRate   Decimal @map("real_rate") @db.Decimal(10, 2)
+  id         String  @id @default(uuid())
+  sheetId    String  @map("sheet_id")
+  employeeId String  @map("employee_id")
+  realRate   Decimal @map("real_rate")
 
   sheet    AttendanceSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   employee Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
@@ -142,14 +114,14 @@ model SheetEmployeeRate {
 }
 
 model AttendanceEntry {
-  id            String   @id @default(uuid()) @db.VarChar(36)
-  sheetId       String   @map("sheet_id") @db.VarChar(36)
-  employeeId    String   @map("employee_id") @db.VarChar(36)
+  id            String   @id @default(uuid())
+  sheetId       String   @map("sheet_id")
+  employeeId    String   @map("employee_id")
   day           Int
-  ordinaryHours Decimal? @map("ordinary_hours") @db.Decimal(10, 2)
-  overtimeHours Decimal? @map("overtime_hours") @db.Decimal(10, 2)
-  absenceCode   String?  @map("absence_code") @db.VarChar(50)
-  notes         String?  @db.Text
+  ordinaryHours Decimal? @map("ordinary_hours")
+  overtimeHours Decimal? @map("overtime_hours")
+  absenceCode   String?  @map("absence_code")
+  notes         String?
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   sheet    AttendanceSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
@@ -162,15 +134,15 @@ model AttendanceEntry {
 }
 
 model AuditLog {
-  id         String      @id @default(uuid()) @db.VarChar(36)
-  userId     String?     @map("user_id") @db.VarChar(36)
-  action     AuditAction
-  entity     AuditEntity
-  entityId   String      @map("entity_id") @db.VarChar(36)
-  entityName String?     @map("entity_name") @db.VarChar(255)
-  before     Json?
-  after      Json?
-  createdAt  DateTime    @default(now()) @map("created_at")
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  entity     String
+  entityId   String   @map("entity_id")
+  entityName String?  @map("entity_name")
+  before     String?
+  after      String?
+  createdAt  DateTime @default(now()) @map("created_at")
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 

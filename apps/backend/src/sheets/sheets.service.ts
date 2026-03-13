@@ -10,7 +10,7 @@ import { AuditService } from '../audit/audit.service';
 import { EmployeesService } from '../employees/employees.service';
 import { CreateSheetDto } from './dto/create-sheet.dto';
 import { UpsertEntryDto } from './dto/upsert-entry.dto';
-import { SheetStatus } from '@prisma/client';
+import { SheetStatus } from '../types';
 import { getDaysInMonth, isWeekend } from 'date-fns';
 
 @Injectable()
@@ -114,17 +114,13 @@ export class SheetsService {
       const firstDay = workingDays[0];
       // Creiamo una entry vuota sul primo giorno lavorativo per ogni dipendente scelto
       // così la griglia li mostra già (l'utente li compila poi)
-      await this.prisma.attendanceEntry.createMany({
-        data: dto.employeeIds.map((empId) => ({
-          sheetId: sheet.id,
-          employeeId: empId,
-          day: firstDay,
-          ordinaryHours: null,
-          overtimeHours: null,
-          absenceCode: null,
-        })),
-        skipDuplicates: true,
-      });
+      for (const empId of dto.employeeIds) {
+        await this.prisma.attendanceEntry.upsert({
+          where: { sheetId_employeeId_day: { sheetId: sheet.id, employeeId: empId, day: firstDay } },
+          create: { sheetId: sheet.id, employeeId: empId, day: firstDay, ordinaryHours: null, overtimeHours: null, absenceCode: null },
+          update: {},
+        });
+      }
     }
 
     return sheet;
